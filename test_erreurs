@@ -1,0 +1,288 @@
+// ════════════════════════════════════════════════════════════════════
+//  test_erreurs.prog  —  Fichier de test ERREURS
+//  But : le compilateur NE doit PAS s'arrêter à la 1ère erreur.
+//  Chaque bloc est commenté avec le TYPE et le MESSAGE attendu.
+//  Résultat attendu : ~20 erreurs détectées, analyse jusqu'à 'end'.
+// ════════════════════════════════════════════════════════════════════
+
+begin
+
+    // ════════════════════════════════════════════════════════════════
+    //  BLOC A — Erreurs de DÉCLARATION
+    // ════════════════════════════════════════════════════════════════
+
+    // A1 : identifiant manquant après 'int'
+    //      Attendu : [Erreur - Declaration] identifiant attendu apres 'int'
+    int ;
+
+    // A2 : mot-clé utilisé comme identifiant (token inattendu)
+    //      Attendu : [Erreur - Declaration] identifiant attendu apres 'int'
+    int while;
+
+    // A3 : déclaration correcte — reprise après A1 et A2
+    int x;
+    int y;
+    int i;
+    int j;
+    int temp;
+    int ok;
+
+    // ════════════════════════════════════════════════════════════════
+    //  BLOC B — Erreurs d'AFFECTATION
+    // ════════════════════════════════════════════════════════════════
+
+    // B1 : ':=' manquant (identifiant seul sur la ligne)
+    //      Attendu : [Erreur - Affectation] ':=' attendu apres l'identifiant
+    x 5;
+
+    // B2 : expression invalide à droite de ':='
+    //      Attendu : [Erreur - Affectation] expression invalide a droite de ':='
+    x := ;
+
+    // B3 : deux ':=' successifs (expression malformée)
+    //      Attendu : [Erreur - Affectation] expression invalide ...
+    x := := 3;
+
+    // B4 : opérateur sans opérande droite
+    //      Attendu : [Erreur - Affectation] expression invalide ...
+    x := 5 + ;
+
+    // B5 : affectation correcte — reprise
+    x := 10;
+    y := 20;
+
+    // ════════════════════════════════════════════════════════════════
+    //  BLOC C — Erreurs d'EXPRESSION ARITHMÉTIQUE
+    // ════════════════════════════════════════════════════════════════
+
+    // C1 : parenthèse fermante manquante
+    //      Attendu : [Erreur - Expression] expression invalide entre parentheses
+    x := (5 + 3 ;
+
+    // C2 : double opérateur
+    //      Attendu : [Erreur - Affectation] expression invalide ...
+    x := 5 * * 2;
+
+    // C3 : parenthèse ouvrante seule
+    //      Attendu : [Erreur - Expression] ...
+    x := ( ;
+
+    // C4 : caractère illégal dans une expression
+    //      Attendu : [Erreur Lexicale] caractere inconnu '@'
+    //                + [Erreur - Affectation] expression invalide ...
+    x := 5 @ 3;
+
+    // C5 : expression correcte — reprise
+    x := (5 + 3) * 2;
+
+    // ════════════════════════════════════════════════════════════════
+    //  BLOC D — Erreurs WRITE / READ
+    // ════════════════════════════════════════════════════════════════
+
+    // D1 : write sans expression
+    //      Attendu : [Erreur - Write] expression invalide apres 'write'
+    write ;
+
+    // D2 : write avec opérateur seul
+    //      Attendu : [Erreur - Write] expression invalide apres 'write'
+    write + ;
+
+    // D3 : read sans parenthèses
+    //      Attendu : [Erreur - Read] parenthese manquante apres 'read'
+    read x;
+
+    // D4 : read avec expression au lieu d'identifiant simple
+    //      Attendu : [Erreur - Read] identifiant attendu dans 'read(...)'
+    read(x + 1);
+
+    // D5 : read avec parenthèse fermante manquante
+    //      Attendu : [Erreur - Read] ...
+    read(x ;
+
+    // D6 : instructions correctes — reprise
+    write x;
+    read(y);
+
+    // ════════════════════════════════════════════════════════════════
+    //  BLOC E — Erreurs WHILE
+    // ════════════════════════════════════════════════════════════════
+
+    // E1 : condition manquante dans while
+    //      Attendu : [Erreur - While] condition invalide dans 'while(...)'
+    while () do
+        x := x + 1;
+    od;
+
+    // E2 : parenthèses manquantes (condition sans parenthèses)
+    //      Attendu : [Erreur - While] parentheses manquantes ...
+    while x > 0 do
+        x := x - 1;
+    od;
+
+    // E3 : 'do' manquant dans while
+    //      Attendu : reprise sur le prochain token reconnaissable
+    while (x > 0)
+        x := x - 1;
+    od;
+
+    // E4 : 'od' manquant dans while
+    //      Attendu : [Erreur - While] 'od' manquant ...
+    while (y > 0) do
+        y := y - 1;
+    ;
+
+    // E5 : opérateur de condition invalide dans while
+    //      Attendu : [Erreur - While] condition invalide ...
+    while (x + y) do
+        x := 0;
+    od;
+
+    // E6 : while correct — reprise
+    x := 3;
+    while (x > 0) do
+        x := x - 1;
+    od;
+
+    // ════════════════════════════════════════════════════════════════
+    //  BLOC F — Erreurs FOR
+    // ════════════════════════════════════════════════════════════════
+
+    // F1 : ':=' manquant dans l'en-tête for
+    //      Attendu : [Erreur - For] en-tete 'for' mal forme
+    for i 1 to 10 do
+        write i;
+    od;
+
+    // F2 : 'to' manquant dans l'en-tête for
+    //      Attendu : [Erreur - For] ...
+    for i := 1 10 do
+        write i;
+    od;
+
+    // F3 : expression de début invalide
+    //      Attendu : [Erreur - For] expression de debut invalide
+    for i := + to 10 do
+        write i;
+    od;
+
+    // F4 : expression de fin invalide
+    //      Attendu : [Erreur - For] expression de fin invalide
+    for i := 1 to * do
+        write i;
+    od;
+
+    // F5 : 'do' manquant dans for
+    //      Attendu : reprise
+    for i := 1 to 5
+        write i;
+    od;
+
+    // F6 : 'od' manquant dans for
+    //      Attendu : [Erreur - For] 'od' manquant ...
+    for i := 1 to 3 do
+        write i;
+    ;
+
+    // F7 : for correct — reprise
+    for i := 1 to 5 do
+        write i;
+    od;
+
+    // ════════════════════════════════════════════════════════════════
+    //  BLOC G — Erreurs IF
+    // ════════════════════════════════════════════════════════════════
+
+    // G1 : condition manquante dans if
+    //      Attendu : [Erreur - If] condition invalide dans 'if'
+    if () then
+        write x;
+    fi;
+
+    // G2 : 'then' manquant dans if
+    //      Attendu : reprise sur le prochain token
+    if (x > 0)
+        write x;
+    fi;
+
+    // G3 : 'fi' manquant dans if
+    //      Attendu : [Erreur - If] 'fi' manquant ...
+    if (x > 0) then
+        write x;
+    ;
+
+    // G4 : condition avec expression non booléenne
+    //      Attendu : [Erreur - If] condition invalide ...
+    if (x + y) then
+        write x;
+    fi;
+
+    // G5 : if-else avec 'fi' manquant
+    //      Attendu : [Erreur - If] 'fi' manquant ...
+    if (x > 0) then
+        write x;
+    else
+        write y;
+    ;
+
+    // G6 : if correct — reprise
+    if (x > 0) then
+        write x;
+    fi;
+
+    // ════════════════════════════════════════════════════════════════
+    //  BLOC H — Erreurs LEXICALES (caractères illégaux)
+    // ════════════════════════════════════════════════════════════════
+
+    // H1 : caractère '#' inconnu
+    //      Attendu : [Erreur Lexicale] caractere inconnu '#'
+    x := 5 # 3;
+
+    // H2 : caractère '$' inconnu dans une condition
+    //      Attendu : [Erreur Lexicale] caractere inconnu '$'
+    if (x $ y) then
+        write x;
+    fi;
+
+    // H3 : caractère '?' inconnu
+    //      Attendu : [Erreur Lexicale] caractere inconnu '?'
+    write x?;
+
+    // ════════════════════════════════════════════════════════════════
+    //  BLOC I — Erreurs dans des IMBRICATIONS
+    // ════════════════════════════════════════════════════════════════
+
+    // I1 : 'fi' manquant dans un if imbriqué dans un for
+    //      Attendu : [Erreur - If] 'fi' manquant — le for doit quand même finir
+    for i := 1 to 5 do
+        if (i > 2) then
+            write i;
+        // fi; manquant intentionnellement
+    od;
+
+    // I2 : 'od' manquant dans un while imbriqué dans un if
+    //      Attendu : [Erreur - While] 'od' manquant
+    if (x > 0) then
+        while (y > 0) do
+            y := y - 1;
+        // od; manquant intentionnellement
+    fi;
+
+    // I3 : condition incorrecte dans for imbriqué dans while
+    //      Attendu : [Erreur - If] condition invalide ...
+    while (x > 0) do
+        for j := 1 to x do
+            if (j) then        // j seul n'est pas une condition
+                write j;
+            fi;
+        od;
+        x := x - 1;
+    od;
+
+    // ════════════════════════════════════════════════════════════════
+    //  BLOC J — Instruction correcte FINALE (vérification de reprise)
+    //  Si le compilateur arrive ici, la récupération a bien fonctionné.
+    // ════════════════════════════════════════════════════════════════
+    ok := 1;
+    write ok;
+
+end
