@@ -1,0 +1,20 @@
+begin
+int x;
+int y;
+int;                
+x := 10;
+y := ;
+write x;
+write ;
+read(x);
+read();
+while (x > y) do
+    x := x - 1;
+od;
+while x > y do     
+    x := x - 1;
+od;
+if x > then          
+    write x;
+fi;
+end

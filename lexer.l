@@ -4,10 +4,9 @@
 #include <string.h>
 #include "parser.tab.h"
 
-/* Partage avec le parser */
 extern int error_count;
 
-/* Suivi de colonne pour messages d'erreur détaillés */
+
 int num_colonne = 1;
 %}
 
@@ -22,9 +21,8 @@ ALNUM   [a-zA-Z0-9_]
 
 [ \t]+          { num_colonne += yyleng; }
 \n              { num_colonne = 1; }
-"//".*          { /* commentaire ligne — ignoré */ }
+"//".*          { /* commentaire ligne — ignore */ }
 
-/* ── Mots-clés ── */
 "begin"         { num_colonne += yyleng; return BEGIN_TK; }
 "end"           { num_colonne += yyleng; return END_TK;   }
 "int"           { num_colonne += yyleng; return INT_TK;   }
@@ -40,9 +38,9 @@ ALNUM   [a-zA-Z0-9_]
 "else"          { num_colonne += yyleng; return ELSE;     }
 "fi"            { num_colonne += yyleng; return FI;       }
 
-/* ── Opérateurs multi-caractères (ordre important : plus long d'abord) ── */
+
 ":="            { num_colonne += 2; return ASSIGN; }
-"==="           { num_colonne += 3; return EQQ;    }  /* égalité stricte */
+"==="           { num_colonne += 3; return EQQ;    }  
 ">="            { num_colonne += 2; return GEQ;    }
 "<="            { num_colonne += 2; return LEQ;    }
 "!="            { num_colonne += 2; return NEQ;    }
@@ -50,31 +48,26 @@ ALNUM   [a-zA-Z0-9_]
 ">"             { num_colonne += 1; return GT;     }
 "<"             { num_colonne += 1; return LT;     }
 
-/* ── Opérateurs logiques (ajout pour conditions composées) ── */
 "&&"            { num_colonne += 2; return AND;    }
 "||"            { num_colonne += 2; return OR;     }
 "!"             { num_colonne += 1; return NOT;    }
 
-/* ── Littéraux ── */
+
 {DIGIT}+        {
                     yylval.num = atoi(yytext);
                     num_colonne += yyleng;
                     return NUM;
                 }
 
-/* ── Identifiants (après les mots-clés pour ne pas les masquer) ── */
 {ALPHA}{ALNUM}* {
                     yylval.id = strdup(yytext);
                     num_colonne += yyleng;
                     return ID;
                 }
 
-/* ── Caractères simples : +  -  *  /  %  ^  (  )  ;
-   CORRECTION : les apostrophes ' retirées de la classe — elles n'ont
-   pas de rôle dans la grammaire et causaient une confusion Flex.      ── */
 [+\-*/%^();]    { num_colonne++; return yytext[0]; }
 
-/* ── Erreur lexicale : caractère inconnu ── */
+
 .               {
                     fprintf(stderr,
                         "[Erreur Lexicale] Ligne %d, Col %d : "
